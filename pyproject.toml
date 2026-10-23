@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skillvet"
+version = "0.1.0"
+description = "Static security review for AI agent skills and MCP configs — deterministic, zero-dependency, evidence-first."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "xuange-hu" }]
+keywords = ["mcp", "security", "agent", "skill", "prompt-injection", "supply-chain", "sarif", "static-analysis"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+# Everything here is standard library. The CLI is a console script, so adding a
+# third-party import to anything it touches would break `skillvet` for everyone
+# who installs without extras — see tests/test_packaging.py, which guards it.
+dependencies = []
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.2,<2"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "build>=1.2", "twine>=5.1"]
+all = ["skillvet[mcp,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/xuange-hu/skillvet"
+Repository = "https://github.com/xuange-hu/skillvet"
+Issues = "https://github.com/xuange-hu/skillvet/issues"
+
+[project.scripts]
+skillvet = "skillvet.cli:main"
+skillvet-mcp = "skillvet.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skillvet = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B008"]

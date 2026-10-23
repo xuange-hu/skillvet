@@ -1,0 +1,25 @@
+feat: skillvet - deterministic security review for agent skills and MCP configs
+
+Why: instruction files (CLAUDE.md, AGENTS.md, .cursorrules, SKILL.md) and MCP
+manifests are executed-by-proxy code, but nothing local and offline reviews them
+before an agent trusts them.
+
+What it does:
+- 14 instruction-file rules (hidden Unicode / Trojan Source, credential reads,
+  cross-line egress-with-secret, decode-then-exec, destructive commands,
+  persistence, instruction-override language, ...) with a minimal frontmatter
+  parser so wildcard tool grants are visible.
+- 8 structured MCP manifest rules (hard-coded secrets, unpinned npx/uvx runners,
+  shell wrappers, filesystem roots, sandbox flags, cleartext endpoints) that
+  still report back to a real file:line in the JSON.
+- Capability table output ("what could this artifact DO") alongside per-rule
+  findings, a 0-100 risk score with a grade, and SARIF 2.1.0 for GitHub Code
+  Scanning.
+
+Deliberate design constraints:
+- Core is standard library only, so the console script cannot fail on a missing
+  optional extra. tests/test_packaging.py guards that contract statically.
+- Deterministic rules, not an LLM call: same input -> same output, usable as a
+  CI gate via --fail-on.
+- No binary attack fixtures in the repo; demo.py synthesises them as reviewed
+  Python source so an empty directory can exercise every feature.
