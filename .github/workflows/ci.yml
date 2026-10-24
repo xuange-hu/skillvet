@@ -5,8 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
+    timeout-minutes: 15
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -16,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v5
         with:
@@ -75,9 +81,12 @@ jobs:
   # The fail-on gate is the whole reason this project is useful in CI, so it is
   # exercised as its own job with a deliberately hostile fixture.
   gate:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
