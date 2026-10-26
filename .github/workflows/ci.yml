@@ -54,15 +54,24 @@ jobs:
       - name: Install the mcp extra
         run: python -m pip install -e ".[mcp]"
 
+      # The demo workspace is deliberately hostile, so `--fail-on critical` MUST
+      # exit non-zero: asserting that here is the point of the step. Running it
+      # as a plain command made the job red for a week, because a tool doing its
+      # job was indistinguishable from a tool crashing.
       - name: Demo workspace end to end
         run: |
           skillvet demo demo-workspace
-          skillvet scan demo-workspace --fail-on critical
-          skillvet scan demo-workspace --json | python -c "import json,sys; d=json.load(sys.stdin); print('grade', d['summary']['grade'], 'findings', len(d['findings']))"
+          if skillvet scan demo-workspace --fail-on critical; then
+            echo "expected a non-zero exit: the demo fixture is deliberately hostile"
+            exit 1
+          fi
+          echo "gate correctly blocked the demo workspace"
+          skillvet scan demo-workspace --json > demo-report.json
+          python -c "import json; d=json.load(open('demo-report.json')); print('grade', d['summary']['grade'], 'findings', len(d['findings']))"
 
       - name: SARIF output is valid
         run: |
-          skillvet scan demo-workspace --sarif results.sarif
+          skillvet scan demo-workspace --sarif results.sarif || status=$?
           python -c "import json; d=json.load(open('results.sarif')); assert d['version']=='2.1.0' and d['runs'][0]['results']; print('sarif ok')"
 
       - name: MCP manifest
