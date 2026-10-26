@@ -24,6 +24,32 @@ from .scan import scan_path
 EPILOG = "examples:\n  skillvet demo && skillvet scan ./demo-workspace\n  skillvet scan . --sarif results.sarif --fail-on high\n"
 
 
+def force_utf8_stdio() -> None:
+    """Make stdout/stderr UTF-8 before anything is printed.
+
+    The whole point of skillvet is printing the hostile characters it finds —
+    zero-width spaces, bidi overrides, invisible separators. On a Windows
+    console the default encoding is cp1252 (or cp936), none of which can encode
+    U+200B, so `skillvet demo` died with
+    ``UnicodeEncodeError: 'charmap' codec can't encode character '\\u200b'``
+    for every Windows user. That is the first command a new visitor runs.
+
+    Reconfiguring up front fixes it without changing a single byte of output on
+    platforms that were already UTF-8.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:  # e.g. a plain StringIO in some hosts
+            continue
+        current = (getattr(stream, "encoding", "") or "").lower().replace("-", "")
+        if current == "utf8":
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):  # stream already detached or closed
+            pass
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="skillvet",
@@ -180,6 +206,7 @@ def _cmd_demo(args) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    force_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
     handlers = {"scan": _cmd_scan, "rules": _cmd_rules, "demo": _cmd_demo, "mcp": _cmd_mcp}

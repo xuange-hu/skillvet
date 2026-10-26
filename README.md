@@ -11,7 +11,7 @@ egress-with-secret cross-line detection, destructive commands, persistence,
  text / JSON / **SARIF 2.1.0** (GitHub Code Scanning). Optional MCP server.
 
 [![CI](https://github.com/xuange-hu/skillvet/actions/workflows/ci.yml/badge.svg)](https://github.com/xuange-hu/skillvet/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-115%20passing-brightgreen)](tests/)
+[![tests](https://img.shields.io/badge/tests-124%20passing-brightgreen)](tests/)
 [![rules](https://img.shields.io/badge/rules-22-blue)](#rule-set)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](https://www.python.org)
 [![dependencies](https://img.shields.io/badge/core%20deps-0-brightgreen)](#project-理解-why-another-scanner)
