@@ -59,6 +59,9 @@ jobs:
       # as a plain command made the job red for a week, because a tool doing its
       # job was indistinguishable from a tool crashing.
       - name: Demo workspace end to end
+        # `shell: bash` is not cosmetic: the default shell on windows-latest is
+        # pwsh, where `if cmd; then` is a ParserError ("Missing '(' after 'if'").
+        shell: bash
         run: |
           skillvet demo demo-workspace
           if skillvet scan demo-workspace --fail-on critical; then
@@ -70,6 +73,7 @@ jobs:
           python -c "import json; d=json.load(open('demo-report.json')); print('grade', d['summary']['grade'], 'findings', len(d['findings']))"
 
       - name: SARIF output is valid
+        shell: bash
         run: |
           skillvet scan demo-workspace --sarif results.sarif || status=$?
           python -c "import json; d=json.load(open('results.sarif')); assert d['version']=='2.1.0' and d['runs'][0]['results']; print('sarif ok')"
