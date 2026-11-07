@@ -173,3 +173,38 @@ def test_mcp_check_without_extra_fails_cleanly(capsys):
 def test_mcp_subcommand_without_check_flag(capsys):
     assert main(["mcp"]) == 0
     assert "use:" in capsys.readouterr().out
+
+
+@pytest.fixture
+def hostile(tmp_path):
+    d = tmp_path / "workspace"
+    (d / ".claude" / "skills" / "bad").mkdir(parents=True)
+    (d / ".claude" / "skills" / "bad" / "SKILL.md").write_text(
+        HOSTILE, encoding="utf-8")
+    return str(d)
+
+
+def test_fail_on_none_never_fails_even_with_findings(hostile, capsys):
+    """'none' is the family-wide 'just render it' switch. It used to raise an
+    uncaught ValueError from Severity.parse() after printing the report."""
+    assert main(["scan", hostile, "--fail-on", "none", "--color", "never"]) == 0
+    captured = capsys.readouterr()
+    assert "finding" in captured.out.lower()
+    assert "Traceback" not in captured.err
+
+
+@pytest.mark.parametrize("bad", ["hihg", "critical-plus", "HIGH?"])
+def test_invalid_fail_on_is_a_usage_error(hostile, capsys, bad):
+    assert main(["scan", hostile, "--fail-on", bad]) == 2
+    err = capsys.readouterr().err
+    assert "unknown severity" in err
+    assert "Traceback" not in err
+
+
+def test_fail_on_high_still_gates(hostile, capsys):
+    assert main(["scan", hostile, "--fail-on", "high"]) == 1
+
+
+def test_fail_on_none_accepts_uppercase(hostile, capsys):
+    assert main(["scan", hostile, "--fail-on", "NONE"]) == 0
+    assert "Traceback" not in capsys.readouterr().err

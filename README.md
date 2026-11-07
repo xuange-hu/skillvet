@@ -1,5 +1,7 @@
 # skillvet v0.1.0
 
+[中文说明 / Chinese README](README_CN.md)
+
 > **给 AI Agent 技能包和 MCP 配置的静态安全体检工具。**
 > 确定性规则（不是再调一次 LLM）、**零依赖核心**、每条结论都带 `文件:行号` 与原文。
 
@@ -11,7 +13,7 @@ egress-with-secret cross-line detection, destructive commands, persistence,
  text / JSON / **SARIF 2.1.0** (GitHub Code Scanning). Optional MCP server.
 
 [![CI](https://github.com/xuange-hu/skillvet/actions/workflows/ci.yml/badge.svg)](https://github.com/xuange-hu/skillvet/actions/workflows/ci.yml)
-[![tests](https://img.shields.io/badge/tests-126%20passing-brightgreen)](tests/)
+[![tests](https://img.shields.io/badge/tests-132%20passing-brightgreen)](tests/)
 [![rules](https://img.shields.io/badge/rules-22-blue)](#rule-set)
 [![python](https://img.shields.io/badge/python-3.10%2B-3776AB)](https://www.python.org)
 [![dependencies](https://img.shields.io/badge/core%20deps-0-brightgreen)](#project-理解-why-another-scanner)

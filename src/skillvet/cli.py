@@ -73,7 +73,8 @@ def build_parser() -> argparse.ArgumentParser:
     scan.add_argument(
         "--fail-on",
         metavar="SEVERITY",
-        help="exit 1 when a finding at or above this level exists (CI gate)",
+        help="exit 1 when a finding at or above this level exists (CI gate); "
+             "'none' never fails",
     )
     scan.add_argument(
         "--max-bytes", type=int, default=512 * 1024, help="skip files larger than N bytes"
@@ -129,7 +130,9 @@ def _cmd_scan(args) -> int:
             end="",
         )
 
-    if args.fail_on:
+    # "none" = never fail, matching the rest of the family. Shape checks that
+    # only inspect the report should not turn into a red build.
+    if args.fail_on and args.fail_on.lower() != "none":
         threshold = Severity.parse(args.fail_on)
         keep = set(Severity.at_least(threshold))
         hits = [f for f in report.findings if f.severity in keep]
@@ -209,6 +212,15 @@ def main(argv: list[str] | None = None) -> int:
     force_utf8_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
+    # Validate the gate before doing any work. An invalid severity used to
+    # raise an uncaught ValueError after the report was already rendered.
+    gate = getattr(args, "fail_on", None)
+    if gate and gate.lower() != "none":
+        try:
+            Severity.parse(gate)
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
     handlers = {"scan": _cmd_scan, "rules": _cmd_rules, "demo": _cmd_demo, "mcp": _cmd_mcp}
     return handlers[args.command](args)
 
