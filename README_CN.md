@@ -1,5 +1,10 @@
 # skillvet · 中文说明
 
+[![tests](https://img.shields.io/badge/tests-135-brightgreen)](https://github.com/xuange-hu/skillvet/actions)
+[![python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![deps](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)](https://github.com/xuange-hu/skillvet/blob/main/pyproject.toml)
+
 [English README](README.md) · Agent skill / MCP 配置的静态安全审查。
 
 **一句话**：给 agent 的指令文件也是输入。用**确定性规则**审它们，不再调一次 LLM
